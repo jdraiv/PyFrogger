@@ -10,12 +10,18 @@ class TerrainC:
         self.terrain_types = self.initial_terrain()
         self.terrain_colors = [['grass', [92, 249, 87]], ['road', [42, 45, 61]], ['water', [50, 107, 209]]]
         self.frog_pos = frog_pos
-        self.c_block_pos = 0
         self.last_terrain_index = 0
+        self.terrain_c = 0
 
+    def random_terrain(self):
+        t_type = random.randint(0, 2)
+
+        for _ in range(4):
+            self.terrain_types.append(t_type)
+            
     def initial_terrain(self):
-        # Start with two blocks of grass(type 0)
-        result = [0, 0]
+        # Start with two four of grass(type 0)
+        result = [0, 0, 0, 0]
         """
         Terrain height: Frog width * 4
 
@@ -24,38 +30,39 @@ class TerrainC:
             1: Road
             2: Water
         """
-        for c in range(5):
+        for c in range(10):
+            terrain_t = random.randint(0, 2)
             # Append the initial terrain values
-            result.append(random.randint(0, 2))
+            for _ in range(4):
+                result.append(terrain_t)
 
         return result
 
     def camera_movement(self, key_char):
-        # Update c_block_pos on frog movement
         if key_char == 119:
-            print("up")
-            self.c_block_pos += Vars.frog_size
+            self.last_terrain_index += 1
+            self.terrain_c += 1
+            # Insert a new terrain into the terrain list
+            if self.terrain_c == 5:
+                self.random_terrain()
+                self.terrain_c = 0
         elif key_char == 115:
-            self.c_block_pos -= Vars.frog_size
+            if self.last_terrain_index > 0:
+                self.last_terrain_index -= 1
 
-        print(self.c_block_pos)
-
-    def update_terrain(self):
-        pass
+    def remove_terrain(self):
+        if self.last_terrain_index > 5:
+            self.terrain_types = self.terrain_types[self.last_terrain_index:]
+            self.last_terrain_index = 0
 
     def draw_terrain(self):
-        # Transfer this into a new function
-        if self.c_block_pos == 80:
-            self.c_block_pos = 0
-            self.last_terrain_index += 1
-        elif self.c_block_pos == -80:
-            self.c_block_pos = 0
-            self.last_terrain_index -= 1
+        # Remove old terrain
+        self.remove_terrain()
 
-        screen_place = Vars.screen_height
+        screen_place = Vars.screen_height - Vars.terrain_height * 4
         for terrain in range(self.last_terrain_index, len(self.terrain_types)):
             color = self.terrain_colors[self.terrain_types[terrain]][1]
             # Draw terrain
             pygame.draw.rect(self.screen, color,
                              [0, screen_place, Vars.screen_width, Vars.frog_size * 4])
-            screen_place -= 80
+            screen_place -= Vars.terrain_height
