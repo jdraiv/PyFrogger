@@ -29,6 +29,7 @@ class Game:
 
             self.screen.fill([0, 0, 0])
             self.terrain_class.draw_terrain()
+            self.terrain_class.draw_objects()
             self.frog_class.draw_frog()
 
             pygame.display.update()
